@@ -1,0 +1,39 @@
+version: 0.2
+
+env:
+  variables:
+    CI: "true"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - npm ci
+  pre_build:
+    commands:
+      - npm run lint
+      - npm test -- --ci --reporters=default --reporters=jest-junit
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      - echo "Build completed on $(date)"
+
+artifacts:
+  files:
+    - "**/*"
+  base-directory: build   # for Vite/CRA; adjust if "dist"
+
+reports:
+  jest_reports:
+    files:
+      - junit.xml
+    file-format: JUNITXML
+    base-directory: .
+    discard-paths: yes
+
+cache:
+  paths:
+    - "node_modules/**/*"
